@@ -6,8 +6,9 @@ use File::Spec;
 
 my $build = App::Build->new (
     dist_name         => "App-Build",
-    dist_version      => "0.61",
-    dist_author       => "stephen.adkins\@officevision.com",
+    dist_version      => "0.62",
+    dist_author       => "spadkins\@gmail.com",
+    dist_abstract     => "extends Module::Build to build/install/configure entire applications (i.e. web applications), not just modules and programs",
     license           => "perl",
     requires => {
         "App::Options"    => 0,  # configuration

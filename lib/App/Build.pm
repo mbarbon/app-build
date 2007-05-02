@@ -7,7 +7,7 @@ use Cwd ();
 use File::Spec;
 
 # until I get to 1.0, I will update the version number manually
-$VERSION = "0.61";
+$VERSION = "0.62";
 #$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 @ISA = ("Module::Build");
@@ -508,14 +508,14 @@ sub _find_all_files {
 
 =head2 rscan_dir()
 
-Don't include CVS and RCS files.
+Don't include CVS, RCS, and SVN (*/.svn/*) files.
 
 =cut
 
 sub rscan_dir {
     my ($self, $dir, $pattern) = @_;
     my $files = $self->SUPER::rscan_dir($dir, $pattern);
-    my @files = grep(!/[\/\\](CVS|RCS)[\/\\]/, @$files);
+    my @files = grep(!/[\/\\](CVS|RCS|\.svn)[\/\\]/, @$files);
     return \@files;
 }
 

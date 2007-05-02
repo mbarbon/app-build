@@ -2,6 +2,12 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.62
+ x Ensure that SVN files (files in */.svn) are not copied/installed
+
+Version 0.61
+ x Fixed some test cases that were erroring out
+
 Version 0.60
  x Remove "Build" from @ARGV to get around weirdness with CPAN shell
  x PREFIX is a synonym for install_base
