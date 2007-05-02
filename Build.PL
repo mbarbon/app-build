@@ -35,13 +35,14 @@ my $build = App::Build->new (
     dist_version_from => "lib/App/Build.pm",
     dist_author       => "stephen.adkins\@officevision.com",
     license           => "perl",
+    #extra_dirs        => [ "etc", "cgi-bin", ],
     requires => {
         "App::Options"    => 0,  # configuration
         "File::Spec"      => 0,  # platform-neutral directory manipulation
     },
     build_requires => {
         "Module::Build"   => 0,  # needed for installing the software
-        "Sysadm::Install" => 0,  # needed for installing the software
+        #"Sysadm::Install" => 0,  # needed for installing the software
     },
     @extra_args,
 );

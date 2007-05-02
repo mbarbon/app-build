@@ -2,6 +2,13 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.50
+ x Cause "bin" directories (i.e. cgi-bin) to have perl interpreter substitution
+ x Ensure execute permission set on "bin" directories
+ x Properly write the .packlist (right location, right contents, right format)
+ x Ensure that packlist is written when no "module_name" exists
+ x Ensure that CVS and RCS files are not copied/installed
+
 Version 0.10
  x Initial release
  x Cause extra_dirs to be installed

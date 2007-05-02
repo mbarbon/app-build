@@ -8,7 +8,7 @@ use File::Spec;
 use Sysadm::Install qw(:all);
 
 # until I get to 1.0, I will update the version number manually
-$VERSION = "0.10";
+$VERSION = "0.50";
 #$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 @ISA = ("Module::Build");
@@ -19,7 +19,7 @@ delete $ENV{PREFIX};   # Module::Build protests if this var is set
 
 =head1 NAME
 
-App::Build - a base/default class for building/installing applications
+App::Build - an extension to Module::Build to build/install entire applications
 
 =head1 SYNOPSIS
 
@@ -411,13 +411,21 @@ sub process_app_files {
     # print "process_app_files(): extra_dirs=[@extra_dirs]\n";
 
     my $blib = $self->blib;
+    my ($contains_executables, $result, $target_file);
     foreach my $dir (@extra_dirs) {
         if (-d $dir) {
+            # I might want to use an attribute for this in the future
+            $contains_executables = ($dir =~ /bin$/) ? 1 : 0;
             $path = File::Spec->catfile($blib, $dir), 
             File::Path::mkpath($path);
             $files = $self->_find_all_files($dir);
             while (my ($file, $dest) = each %$files) {
-                $self->copy_if_modified(from => $file, to => File::Spec->catfile($blib, $dest) );
+                $target_file = File::Spec->catfile($blib, $dest);
+                $result = $self->copy_if_modified(from => $file, to => $target_file) || "";
+                if ($result && $contains_executables) {
+                    $self->fix_shebang_line($result);
+                    $self->make_executable($result);
+                }
             }
         }
     }
@@ -433,7 +441,20 @@ to copy to "blib".
 sub _find_all_files {
     my ($self, $dir) = @_;
     return {} unless -d $dir;
-    return { map { $_, $_ } @{ $self->rscan_dir($dir, sub { $_ !~ /(CVS|RCS|SCCS)/ }) } };
+    return { map { $_, $_ } @{ $self->rscan_dir($dir, sub { -f $_ }) } };
+}
+
+=head2 rscan_dir()
+
+Don't include CVS and RCS files.
+
+=cut
+
+sub rscan_dir {
+    my ($self, $dir, $pattern) = @_;
+    my $files = $self->SUPER::rscan_dir($dir, $pattern);
+    my @files = grep(!/[\/\\](CVS|RCS)[\/\\]/, @$files);
+    return \@files;
 }
 
 ######################################################################
@@ -463,6 +484,38 @@ sub install_base_relative {
     return($reldir);
 }
 
+=head2 _packlist()
+
+This creates the name of the "packlist" file that needs to be
+written with the list of all of the files that get installed.
+
+=cut
+
+sub _packlist {
+    my ($self) = @_;
+    # Write the packlist into the same place as ExtUtils::MakeMaker.
+    my $archdir = $self->install_destination('arch');
+    my @ext = split /::/, $self->module_name;
+    @ext = ($self->dist_name) if ($#ext == -1);
+    my $packlist = File::Spec->catfile($archdir, 'auto', @ext, '.packlist');
+    return($packlist);
+}
+
+=head2 _perllocal_pod()
+
+This creates the name of the "perllocal.pod" file that needs to be
+written with the version information of the distribution being installed.
+
+=cut
+
+sub _perllocal_pod {
+    my ($self) = @_;
+    # perllocal.pod in the same place as ExtUtils::MakeMaker and ExtUtils::Command::MM.
+    my $archdir = $self->install_destination('arch');
+    my $pod = File::Spec->catfile($archdir, 'perllocal.pod');
+    return($pod);
+}
+
 =head2 install_map()
 
 This method is only overridden in order to put in the fix so
@@ -490,13 +543,7 @@ sub install_map {
   }
 
   if ($self->create_packlist) {
-    # Write the packlist into the same place as ExtUtils::MakeMaker.
-    my $archdir = $self->install_destination('arch');
-    my @ext = split /::/, $self->module_name;
-    if ($#ext == -1) {              # FIX
-        @ext = ($self->dist_name);  # FIX
-    }                               # FIX
-    $map{write} = File::Spec->catfile($archdir, 'auto', @ext, '.packlist'); # FIX ?!?
+    $map{write} = $self->_packlist();
   }
 
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
@@ -528,7 +575,22 @@ sub ACTION_install {
     $self->depends_on('build');
     my $map = $self->install_map;
     ExtUtils::Install::install($map, 1, 0, $self->{args}{uninst}||0);
+    $self->perllocal_install();
     $self->configure();
+}
+
+=head2 perllocal_install()
+
+This method should be modelled after ExtUtils::Command::MM::perllocal_install
+so that it writes the same information at MakeMaker does.
+
+It currently is a stub, waiting to be implemented
+
+=cut
+
+sub perllocal_install {
+    my ($self) = @_;
+    # Not yet implemented.
 }
 
 =head2 configure()

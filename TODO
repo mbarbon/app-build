@@ -3,19 +3,16 @@
 ######################################################################
 
 These items next (high priority)
- o Cause "bin" directories (i.e. cgi-bin) to have perl interpreter substitution
 
-These items are what will be required to go to version 1.00.
+These items are what will be required to go to version 1.0.
  o Write tests
  o Read appropriate vars from app.conf
- o Properly write the .packlist (right location, right contents, right format)
- o Ensure execute permission set on "bin" directories
- o Ensure that packlist is written when no "module_name" exists
  o Auto-detect CGIDIR and HTMLDIR
  o Ensure Win32 compatibility
  o Install documentation ("html" directory) to $prefix/htdocs/docs
  o Fix: ## Running 'make install UNINST=1' will unlink this file for you.
    (actually, this is a Module::Build bug because it uses ExtUtils::Install)
+ o Write to perllocal.pod (as well as .packlist) (Module::Build bug)
 
 These are other interesting things which I might do
  o TBD
