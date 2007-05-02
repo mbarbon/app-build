@@ -7,7 +7,7 @@ use Cwd ();
 use File::Spec;
 
 # until I get to 1.0, I will update the version number manually
-$VERSION = "0.60";
+$VERSION = "0.61";
 #$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 @ISA = ("Module::Build");
@@ -16,7 +16,7 @@ use strict;
 
 =head1 NAME
 
-App::Build - extends Module::Build to build/install/configure entire applications, not just modules and programs
+App::Build - extends Module::Build to build/install/configure entire applications (i.e. web applications), not just modules and programs
 
 =head1 SYNOPSIS
 
@@ -25,11 +25,9 @@ App::Build - extends Module::Build to build/install/configure entire application
 
   use App::Build;
 
-  shift(@ARGV) if ($#ARGV > -1 && $ARGV[0] eq "Build");
-
   my $build = App::Build->new (
-      dist_name         => "App-Build",
-      dist_version_from => "lib/App/Build.pm",
+      dist_name         => "App-Build-Foo",
+      dist_version      => "1.0",
       dist_author       => "stephen.adkins\@officevision.com",
       extra_dirs        => [ "htdocs", "cgi-bin", "etc", "var" ],
       license           => "perl",
@@ -42,22 +40,29 @@ App::Build - extends Module::Build to build/install/configure entire application
 
 =head1 DESCRIPTION
 
+App::Build is a subclass of Module::Build, so you can use
+it in place of Module::Build when creating your "Build.PL"
+installation scripts.
+
+Module::Build is good at
+installing perl modules and programs/scripts.  Full applications
+(i.e. web applications) need to install other files such as
+web pages, images, CSS style sheets, javascript files,
+CGI programs, data files, and configuration data.
+App::Build addresses these issues.
+
 The vision of App::Build is to make installing entirely
 functional perl applications (particularly web applications)
-as easy as installing individual models from CPAN.
+as easy as installing individual modules from CPAN.
 
 An ISP customer (or other unprivileged user)
 who has shell access should be able to install any number
 of available applications from CPAN simply by typing the
 usual
 
-  perl -MCPAN -e "install App-Build-Foo"
+  perl -MCPAN -e "install App::Build::Foo"
 
 and the "Foo" application is installed on his account.
-
-The goal is to make installing entire perl applications
-as easy as installing a simple set of modules.
-App::Build is a subclass of Module::Build.
 
 App::Build does this by implementing the following features.
 
@@ -85,7 +90,7 @@ App-Build-Foo and upload it to CPAN.
 When someone uses the CPAN shell, they can install the
 application simply by typing
 
- install App-Build-Foo
+ install App::Build::Foo
 
 Within the App-Build-Foo distribution would be a module,
 App::Build::Foo, which would be a subclass of App::Build.
@@ -205,45 +210,56 @@ sub new {
     }
 
     $obj->_enhance_install_paths();
-
-#    my $tag = lc($dist_name);
-#    $tag =~ s/^app-build-//;
-#
-#    my $url  = $App::options{"$tag.url"};
-#    ($url) || die "URL [$tag.url] does not exist";
-#
-#    my $file = $App::options{"$tag.file"};
-#    if (!$file) {
-#        $file = $url;
-#        $file =~ s!.*/!!;
-#    }
-#    ($file) || die "File [$tag.file] does not exist";
-#
-#    my $subdir = $App::options{"$tag.subdir"};
-#    if (!$subdir) {
-#        $subdir = $file;
-#        $subdir =~ s!\.tar.gz$!!;
-#        $subdir =~ s!\.tgz$!!;
-#    }
-#    ($subdir) || die "Subdir [$tag.subdir] does not exist";
-#
-#    my $prefix = $App::options{install_prefix} || $App::options{prefix};
-#    my $archive_dir = $App::options{archive_dir} || "archive";
-#    mkdir($archive_dir) if (! -d $archive_dir);
-#
-#    my $archive = "$archive_dir/$file";
-#
-#    (-d $archive_dir) || die "Archive Directory [$archive_dir] does not exist";
-#    (-w $archive_dir) || die "Archive Directory [$archive_dir] not writeable";
-#
-#    $class->mirror($url, $archive);
-#    $class->unpack($archive, "unpack", $subdir);
+    $obj->_get_supporting_software();
 
     #print "new() = $obj\n";
     #print "obj = {", join(",", %$obj), "}\n";
     #print "obj{properties} = {", join(",", %{$obj->{properties}}), "}\n";
 
     return($obj);
+}
+
+=head2 _get_supporting_software()
+
+Downloads supporting software (if necessary), unpacks it, compiles it,
+and installs it.
+
+=cut
+
+sub _get_supporting_software {
+    my ($self) = @_;
+
+    my $tag = $self->_app_tag();
+
+    my $url  = $App::options{"$tag.url"};   # check to see if there was software to download
+    if ($url) {
+        my $file = $App::options{"$tag.file"};
+        if (!$file) {
+            $file = $url;
+            $file =~ s!.*/!!;
+        }
+        ($file) || die "File [$tag.file] does not exist";
+
+        my $subdir = $App::options{"$tag.subdir"};
+        if (!$subdir) {
+            $subdir = $file;
+            $subdir =~ s!\.tar.gz$!!;
+            $subdir =~ s!\.tgz$!!;
+        }
+        ($subdir) || die "Subdir [$tag.subdir] does not exist";
+
+        my $prefix = $App::options{install_prefix} || $App::options{prefix};
+        my $archive_dir = $App::options{archive_dir} || "archive";
+        mkdir($archive_dir) if (! -d $archive_dir);
+
+        my $archive = "$archive_dir/$file";
+
+        (-d $archive_dir) || die "Archive Directory [$archive_dir] does not exist";
+        (-w $archive_dir) || die "Archive Directory [$archive_dir] not writeable";
+
+        $self->mirror($url, $archive);
+        $self->unpack($archive, "unpack", $subdir);
+    }
 }
 
 =head2 _app_tag()
@@ -331,7 +347,7 @@ the "blib" subdirectory in preparation for installation.
 sub ACTION_code {
     my ($self) = @_;
     $self->SUPER::ACTION_code(); # call this first (creates "blib" dir if necessary)
-    $self->process_app_files();  # NEW. call this to copy "extra_libs" to "blib"
+    $self->process_app_files();  # NEW. call this to copy "extra_dirs" to "blib"
 }
 
 =head2 _added_to_INC()
@@ -729,26 +745,15 @@ sub configure {
     # Do nothing.  This is a hook for overriding in a subclass.
 }
 
-=head1 ACKNOWLEDGEMENTS
-
- * Author:  Stephen Adkins <stephen.adkins@officevision.com>
- * License: This is free software. It is licensed under the same terms as Perl itself.
-
-=head1 SEE ALSO
-
-=cut
-
-1;
-
-__END__
-
-#=head2 mirror()
+=head2 mirror()
 
     * Signature: App::Build->mirror($url, $file);
     * Param:  $url          string
     * Param:  $file         string
 
-#=cut
+TODO: Should be rewritten to use cross-platform, pure-perl.
+
+=cut
 
 sub mirror {
     my ($class, $url, $file) = @_;
@@ -761,14 +766,16 @@ sub mirror {
     }
 }
 
-#=head2 unpack()
+=head2 unpack()
 
     * Signature: App::Build->unpack($archive_file, $directory, $subdir);
     * Param:  $archive_file string
     * Param:  $directory    string
     * Param:  $subdir       string
 
-#=cut
+TODO: Should be rewritten to use cross-platform, pure-perl.
+
+=cut
 
 sub unpack {
     my ($class, $archive_file, $directory, $subdir) = @_;
@@ -813,4 +820,17 @@ sub unpack {
 
     chdir($start_dir);
 }
+
+=head1 ACKNOWLEDGEMENTS
+
+ * Author:  Stephen Adkins <stephen.adkins@officevision.com>
+ * License: This is free software. It is licensed under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+=cut
+
+1;
+
+__END__
 
