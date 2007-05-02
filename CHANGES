@@ -1,0 +1,13 @@
+#############################################################################
+# CHANGE LOG
+#############################################################################
+
+Version 0.10
+ x Initial release
+ x Cause extra_dirs to be installed
+ x Add configure() hook
+ x Ensure that "lib" is always at the head of @INC
+ x Works with install_base or not
+ x PREFIX is a synonym for install_base
+ x unset $ENV{PREFIX} so that Module::Build doesn't complain
+
