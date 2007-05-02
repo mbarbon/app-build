@@ -5,7 +5,6 @@
 These items next (high priority)
 
 These items are what will be required to go to version 1.0.
- o Write tests
  o Read appropriate vars from app.conf
  o Auto-detect CGIDIR and HTMLDIR
  o Ensure Win32 compatibility
@@ -15,5 +14,5 @@ These items are what will be required to go to version 1.0.
  o Write to perllocal.pod (as well as .packlist) (Module::Build bug)
 
 These are other interesting things which I might do
- o TBD
+ o Write more tests
 

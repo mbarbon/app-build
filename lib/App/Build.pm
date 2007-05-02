@@ -5,21 +5,18 @@ use App::Options;
 use Module::Build;
 use Cwd ();
 use File::Spec;
-use Sysadm::Install qw(:all);
 
 # until I get to 1.0, I will update the version number manually
-$VERSION = "0.50";
+$VERSION = "0.60";
 #$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 @ISA = ("Module::Build");
 
 use strict;
 
-delete $ENV{PREFIX};   # Module::Build protests if this var is set
-
 =head1 NAME
 
-App::Build - an extension to Module::Build to build/install entire applications
+App::Build - extends Module::Build to build/install/configure entire applications, not just modules and programs
 
 =head1 SYNOPSIS
 
@@ -130,12 +127,49 @@ Since App::Build uses App::Options, App::Options strips off all
 of the --var=value options out of @ARGV and makes them available
 via the global %App::options hash.
 
-At build/install time, Build.PL (using Module::Build) is 
-configurable using VAR=VALUE pairs on the command line.
+This will be put to good use sometime in the future.
 
-(more on this later)
+=head1 FIX-UPS
+
+Module::Build complains if the PREFIX environment variable is
+set.  App::Build doesn't.  It just ignores it.
+
+The CPAN shell (for some reason I don't understand) runs Build.PL
+as "perl Build.PL Build" and this fails.
+App::Build just throws away the "Build" so that the default "build"
+action is invoked.
+
+Module::Build deprecated the PREFIX option to Makefile.PL
+(i.e. "perl Makefile.PL PREFIX=/usr/foo").  App::Build just makes
+the PREFIX option a synonym for "install_base", which does
+essentially the same thing.
 
 =cut
+
+delete $ENV{PREFIX};   # Module::Build protests if this var is set
+
+shift(@ARGV) if ($#ARGV > -1 && $ARGV[0] eq "Build");
+
+# Enable the continued use of the PREFIX=$PREFIX option
+# (from Makefile.PL and ExtUtils::MakeMaker) by making it
+# an alias for the "install_base" option of Module::Build.
+
+# Also, install scripts into $PREFIX/bin, not $PREFIX/scripts.
+
+my (@extra_args);
+foreach my $arg (@ARGV) {
+    if ($arg =~ s!^PREFIX=(.*)!install_base=$1!i) {
+        @extra_args = (
+            install_path => {bin => File::Spec->catdir($1,"bin")},
+        );
+    }
+    elsif ($arg =~ m!^install_base=(.*)!) {
+        # Install scripts into $PREFIX/bin, not $PREFIX/scripts
+        @extra_args = (
+            install_path => {bin => File::Spec->catdir($1,"bin")},
+        );
+    }
+}
 
 ######################################################################
 # BUILD: enhancements to "perl Build.PL"
@@ -337,6 +371,13 @@ are hashrefs of attributes. i.e.
        htdocs => {
            dest_dir => "htdocs",
        },
+       "cgi-bin" => {  # any dir ending in "bin" contains executable scripts
+           dest_dir => "cgi-bin",
+       },
+       support => {
+           dest_dir => "support",
+           executable => 1,  # treat contents as executable scripts
+       },
    },
 
 So far, only the "dest_dir" attribute is defined.
@@ -391,6 +432,9 @@ sub _get_extra_dirs_attributes {
              @extra_dirs = split(/,/,$properties->{extra_dirs});
              $extra_dirs = { map { $_ => { dest_dir => $_ } } @extra_dirs };
         }
+        foreach my $dir (@extra_dirs) {
+            $extra_dirs->{dir}{dest_dir} = $dir if (!$extra_dirs->{dir}{dest_dir});
+        }
     }
     return($extra_dirs);
 }
@@ -408,23 +452,25 @@ sub process_app_files {
     my ($path, $files);
 
     my @extra_dirs = $self->_get_extra_dirs();
+    my $extra_dirs = $self->_get_extra_dirs_attributes();
     # print "process_app_files(): extra_dirs=[@extra_dirs]\n";
 
     my $blib = $self->blib;
     my ($contains_executables, $result, $target_file);
     foreach my $dir (@extra_dirs) {
         if (-d $dir) {
-            # I might want to use an attribute for this in the future
-            $contains_executables = ($dir =~ /bin$/) ? 1 : 0;
+            $contains_executables = $extra_dirs->{$dir}{executable};
+            $contains_executables = ($dir =~ /bin$/) ? 1 : 0 if (!defined $contains_executables);
             $path = File::Spec->catfile($blib, $dir), 
             File::Path::mkpath($path);
             $files = $self->_find_all_files($dir);
+            my ($should_be_executable);
             while (my ($file, $dest) = each %$files) {
                 $target_file = File::Spec->catfile($blib, $dest);
                 $result = $self->copy_if_modified(from => $file, to => $target_file) || "";
                 if ($result && $contains_executables) {
-                    $self->fix_shebang_line($result);
-                    $self->make_executable($result);
+                    $should_be_executable = $self->fix_shebang_line($result);
+                    $self->make_executable($result) if ($should_be_executable);
                 }
             }
         }
@@ -484,14 +530,14 @@ sub install_base_relative {
     return($reldir);
 }
 
-=head2 _packlist()
+=head2 packlist()
 
 This creates the name of the "packlist" file that needs to be
 written with the list of all of the files that get installed.
 
 =cut
 
-sub _packlist {
+sub packlist {
     my ($self) = @_;
     # Write the packlist into the same place as ExtUtils::MakeMaker.
     my $archdir = $self->install_destination('arch');
@@ -501,19 +547,83 @@ sub _packlist {
     return($packlist);
 }
 
-=head2 _perllocal_pod()
+=head2 perllocal_pod()
 
 This creates the name of the "perllocal.pod" file that needs to be
 written with the version information of the distribution being installed.
 
 =cut
 
-sub _perllocal_pod {
+sub perllocal_pod {
     my ($self) = @_;
     # perllocal.pod in the same place as ExtUtils::MakeMaker and ExtUtils::Command::MM.
     my $archdir = $self->install_destination('arch');
     my $pod = File::Spec->catfile($archdir, 'perllocal.pod');
     return($pod);
+}
+
+=head2 fix_shebang_line()
+
+This method is only overridden in order to return the level of
+fixes performed.
+
+ 0 = no #! line
+ 1 = found #! line, but not a perl script
+ 2 = found #! line, fixed to current perl interpreter
+
+=cut
+
+sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
+  my ($self, @files) = @_;
+  my $c = $self->{config};
+
+  my ($does_shbang) = $c->{sharpbang} =~ /^\s*\#\!/;
+  my $fixes = 0;
+  for my $file (@files) {
+    my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
+    local $/ = "\n";
+    chomp(my $line = <$FIXIN>);
+    next unless $line =~ s/^\s*\#!\s*//;     # Not a shbang file.
+    $fixes++;
+
+    my ($cmd, $arg) = (split(' ', $line, 2), '');
+    next unless $cmd =~ /perl/i;
+    $fixes++;
+    my $interpreter = $self->{properties}{perl};
+
+    print STDOUT "Changing sharpbang in $file to $interpreter" if $self->{verbose};
+    my $shb = '';
+    $shb .= "$c->{sharpbang}$interpreter $arg\n" if $does_shbang;
+
+    # I'm not smart enough to know the ramifications of changing the
+    # embedded newlines here to \n, so I leave 'em in.
+    $shb .= qq{
+eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
+    if 0; # not running under some shell
+} unless $self->os_type eq 'Windows'; # this won't work on win32, so don't
+
+    my $FIXOUT = IO::File->new(">$file.new")
+      or die "Can't create new $file: $!\n";
+
+    # Print out the new #! line (or equivalent).
+    local $\;
+    undef $/; # Was localized above
+    print $FIXOUT $shb, <$FIXIN>;
+    close $FIXIN;
+    close $FIXOUT;
+
+    rename($file, "$file.bak")
+      or die "Can't rename $file to $file.bak: $!";
+
+    rename("$file.new", $file)
+      or die "Can't rename $file.new to $file: $!";
+
+    unlink "$file.bak"
+      or warn "Couldn't clean up $file.bak, leaving it there";
+
+    $self->do_system($c->{eunicefix}, $file) if $c->{eunicefix} ne ':';
+  }
+  return($fixes);
 }
 
 =head2 install_map()
@@ -543,7 +653,7 @@ sub install_map {
   }
 
   if ($self->create_packlist) {
-    $map{write} = $self->_packlist();
+    $map{write} = $self->packlist();
   }
 
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
@@ -558,6 +668,18 @@ sub install_map {
   $map{read} = '';  # To keep ExtUtils::Install quiet
 
   return \%map;
+}
+
+=head2 has_config_data()
+
+No. We're not using config data.
+Always return FALSE.
+
+=cut
+
+sub has_config_data {
+    my ($self) = @_;
+    return(0);
 }
 
 =head2 ACTION_install()
@@ -620,14 +742,11 @@ sub configure {
 
 __END__
 
-# NO LONGER USED: using Sysadm::Install instead
-
 #=head2 mirror()
 
     * Signature: App::Build->mirror($url, $file);
     * Param:  $url          string
     * Param:  $file         string
-    * Since:  0.50
 
 #=cut
 
@@ -648,7 +767,6 @@ sub mirror {
     * Param:  $archive_file string
     * Param:  $directory    string
     * Param:  $subdir       string
-    * Since:  0.50
 
 #=cut
 

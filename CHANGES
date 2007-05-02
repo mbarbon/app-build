@@ -2,6 +2,15 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.60
+ x Remove "Build" from @ARGV to get around weirdness with CPAN shell
+ x PREFIX is a synonym for install_base
+ x install scripts into $PREFIX/bin, not $PREFIX/scripts.
+ x override has_config_data() to always return false to overcome weirdness
+ x added regression tests (t/main.t)
+ x add the "execute" attribute on "extra_dirs"
+ x adds execute permission only to #! files in dirs that contain executables
+
 Version 0.50
  x Cause "bin" directories (i.e. cgi-bin) to have perl interpreter substitution
  x Ensure execute permission set on "bin" directories
@@ -15,6 +24,5 @@ Version 0.10
  x Add configure() hook
  x Ensure that "lib" is always at the head of @INC
  x Works with install_base or not
- x PREFIX is a synonym for install_base
  x unset $ENV{PREFIX} so that Module::Build doesn't complain
 
