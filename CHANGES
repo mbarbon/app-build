@@ -2,6 +2,10 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.64
+ x Do not use App::Build in App::Build's Build.PL because it breaks
+   site/vendor selection operated (for example) by Gentoo g-cpan.
+
 Version 0.63
  x Re-release changing the maintainer.
 

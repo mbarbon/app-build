@@ -1,10 +1,9 @@
+#!/usr/bin/perl -w
 
-use lib "lib";
-use App::Build;
-
+use Module::Build;
 use File::Spec;
 
-my $build = App::Build->new (
+my $build = Module::Build->new (
     module_name       => "App::Build",
     dist_author       => [ "Mattia Barbon <mbarbon\@cpan.org>", "spadkins\@gmail.com" ],
     dist_abstract     => "extends Module::Build to build/install/configure entire applications (i.e. web applications), not just modules and programs",

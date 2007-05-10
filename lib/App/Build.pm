@@ -7,7 +7,7 @@ use Cwd ();
 use File::Spec;
 
 # until I get to 1.0, I will update the version number manually
-$VERSION = "0.63";
+$VERSION = "0.64";
 #$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 @ISA = ("Module::Build");
