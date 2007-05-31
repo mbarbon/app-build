@@ -674,9 +674,11 @@ sub install_map {
     }
   }
 
-  foreach my $dir ( $self->_get_extra_dirs ) {
+  my $extra_dirs_attrs = $self->_get_extra_dirs_attributes();
+  foreach my $dir ( $self->_get_extra_dirs() ) {
     $map{File::Spec->catdir( $blib, $dir )} =
-         File::Spec->catdir( $self->install_base, $dir );
+         File::Spec->catdir( $self->install_base,
+                             $extra_dirs_attrs->{$dir}{dest_dir} );
   }
 
   if ($self->create_packlist) {
