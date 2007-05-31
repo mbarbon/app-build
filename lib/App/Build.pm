@@ -208,8 +208,9 @@ sub new {
         die "must provide a dist_name" if ($dist_name eq "App-Build");
     }
 
-    $obj->_enhance_install_paths();
+    $obj->_enhance_install_paths() if $obj->_prefix;
     $obj->_get_supporting_software();
+    # $obj->add_property( skip_install, [] );
 
     #print "new() = $obj\n";
     #print "obj = {", join(",", %$obj), "}\n";
@@ -222,7 +223,14 @@ sub read_config {
     my ($self) = @_;
 
     $self->SUPER::read_config();
-    $self->_enhance_install_paths();
+    $self->_enhance_install_paths() if $self->_prefix;
+}
+
+sub install_base {
+    my ($self, @args) = @_;
+
+    $self->SUPER::install_base(@args);
+    $self->_enhance_install_paths() if $self->_prefix;
 }
 
 =head2 _get_supporting_software()
@@ -455,7 +463,7 @@ sub _get_extra_dirs_attributes {
              $extra_dirs = { map { $_ => { dest_dir => $_ } } @extra_dirs };
         }
         foreach my $dir (@extra_dirs) {
-            $extra_dirs->{dir}{dest_dir} = $dir if (!$extra_dirs->{dir}{dest_dir});
+            $extra_dirs->{$dir}{dest_dir} = $dir if (!$extra_dirs->{$dir}{dest_dir});
         }
     }
     return($extra_dirs);
@@ -677,7 +685,7 @@ sub install_map {
   my $extra_dirs_attrs = $self->_get_extra_dirs_attributes();
   foreach my $dir ( $self->_get_extra_dirs() ) {
     $map{File::Spec->catdir( $blib, $dir )} =
-         File::Spec->catdir( $self->install_base,
+         File::Spec->catdir( $self->_prefix,
                              $extra_dirs_attrs->{$dir}{dest_dir} );
   }
 
