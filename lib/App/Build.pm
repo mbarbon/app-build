@@ -1,4 +1,3 @@
-
 package App::Build;
 
 use App::Options;
@@ -7,7 +6,7 @@ use Cwd ();
 use File::Spec;
 
 # until I get to 1.0, I will update the version number manually
-$VERSION = "0.64";
+$VERSION = "0.65";
 #$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
 
 @ISA = ("Module::Build");
@@ -217,6 +216,13 @@ sub new {
     #print "obj{properties} = {", join(",", %{$obj->{properties}}), "}\n";
 
     return($obj);
+}
+
+sub read_config {
+    my ($self) = @_;
+
+    $self->SUPER::read_config();
+    $self->_enhance_install_paths();
 }
 
 =head2 _get_supporting_software()
@@ -666,6 +672,11 @@ sub install_map {
       die "Can't figure out where to install things of type '$type'"
         unless $type =~ /^(lib|bin)doc$/;
     }
+  }
+
+  foreach my $dir ( $self->_get_extra_dirs ) {
+    $map{File::Spec->catdir( $blib, $dir )} =
+         File::Spec->catdir( $self->install_base, $dir );
   }
 
   if ($self->create_packlist) {
