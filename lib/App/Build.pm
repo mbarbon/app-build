@@ -1,17 +1,14 @@
 package App::Build;
 
+use strict;
+
 use App::Options;
 use Module::Build;
 use Cwd ();
 use File::Spec;
 
-# until I get to 1.0, I will update the version number manually
-$VERSION = "0.65";
-#$VERSION = do { my @r=(q$Revision: 1.4 $=~/\d+/g); sprintf "%d."."%02d"x$#r,@r};
-
-@ISA = ("Module::Build");
-
-use strict;
+our $VERSION = "0.65";
+our @ISA = ("Module::Build");
 
 =head1 NAME
 

@@ -2,6 +2,14 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.65
+ x Fix some warnings when install_base is not specified.
+ x Allow calling install_base after the App::Build object
+   has been constructed.
+ x Fix handling of the default 'dest_dir' attribute when
+   'extra_dirs' is specified as an hash.
+ x Fix compatibility with Module::Build 0.28 and require it.
+
 Version 0.64
  x Do not use App::Build in App::Build's Build.PL because it breaks
    site/vendor selection operated (for example) by Gentoo g-cpan.

@@ -14,7 +14,7 @@ my $build = Module::Build->new (
         "Module::Build"   => 0,  # needed for installing the software (dup'ed here because not sure if build_requires works)
     },
     build_requires => {
-        "Module::Build"   => 0.19,  # needed for installing the software
+        "Module::Build"   => 0.28,  # needed for installing the software
     },
     create_makefile_pl    => 'passthrough',
 );
