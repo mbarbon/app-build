@@ -7,7 +7,7 @@ use Module::Build;
 use Cwd ();
 use File::Spec;
 
-our $VERSION = "0.65";
+our $VERSION = "0.66";
 our @ISA = ("Module::Build");
 
 =head1 NAME
