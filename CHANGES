@@ -2,6 +2,10 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.66
+ x More comprehensive tests, remove unused code and some
+   warnings.
+
 Version 0.65
  x Fix some warnings when install_base is not specified.
  x Allow calling install_base after the App::Build object
