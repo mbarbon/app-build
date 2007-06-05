@@ -6,6 +6,12 @@ Makefile.PL
 README
 TODO
 lib/App/Build.pm
+t/01_load.t
+t/02_simple.t
+t/03_destdir.t
+t/04_extra_dirs.t
+t/Bar/Build.PL
+t/Bar/lib/MyBar.pm
 t/Foo/Build.PL
 t/Foo/cgi-bin/CVS/Entries
 t/Foo/cgi-bin/foo/foo.cgi
@@ -13,4 +19,7 @@ t/Foo/cgi-bin/foo/foo.conf
 t/Foo/htdocs/.htaccess
 t/Foo/htdocs/index.html
 t/Foo/htdocs/robots.txt
-t/main.t
+t/Foo/lib/MyFoo.pm
+t/lib/TestAppBuild.pm
+t/zy_pod_coverage.t
+t/zz_pod.t

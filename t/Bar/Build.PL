@@ -2,20 +2,16 @@
 use App::Build;
 
 my $build = App::Build->new (
-    dist_name         => "Foo",
+    dist_name         => "Bar",
     dist_version      => "0.99",
-    dist_author       => "stephen.adkins\@officevision.com",
+    dist_author       => "mattia.barbon\@libero.it",
     dist_abstract     => "A test Build.PL",
     license           => "perl",
-    requires => {
-        "App::Options"   => 0,
-    },
     build_requires => {
         "App::Build"     => 0,
     },
-    extra_dirs => [ "cgi-bin", "htdocs", "lib", ],
-    dynamic_config => 1,
-    install_base => '../test_install/simple',
+    extra_dirs => { "lib", => { dest_dir => "lib/perl" } },
+    install_base => '../test_install/remapped',
     create_packlist => 0,
 );
 
