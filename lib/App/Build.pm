@@ -216,12 +216,24 @@ sub new {
     return($obj);
 }
 
+=head2 read_config()
+
+Overridden to transparently call C<_enhance_install_paths()>.
+
+=cut
+
 sub read_config {
     my ($self) = @_;
 
     $self->SUPER::read_config();
     $self->_enhance_install_paths() if $self->_prefix;
 }
+
+=head2 install_base()
+
+Overridden to transparently call C<_enhance_install_paths()>.
+
+=cut
 
 sub install_base {
     my ($self, @args) = @_;
@@ -496,11 +508,26 @@ sub process_app_files {
                 $target_file = File::Spec->catfile($blib, $dest);
                 $result = $self->copy_if_modified(from => $file, to => $target_file) || "";
                 if ($result && $contains_executables) {
-                    $should_be_executable = $self->fix_shebang_line($result);
-                    $self->make_executable($result) if ($should_be_executable);
+                    $self->fix_shebang_line($result);
+                    $self->make_executable($result)
+                      if $self->_should_be_executable($result);
                 }
             }
         }
+    }
+}
+
+sub _should_be_executable {
+    my ($self, $file) = @_;
+
+    # copied from Module::Build::Base::fix_shebang_line
+    my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
+    local $/ = "\n";
+    chomp(my $line = <$FIXIN>);
+    if ($line =~ /^\s*\#!\s*/) {
+        return 1;
+    } else {
+        return 0;
     }
 }
 
@@ -534,29 +561,6 @@ sub rscan_dir {
 # INSTALL: enhancements to "./Build install"
 ######################################################################
 
-=head2 install_base_relative()
-
-This method is overridden to indicate that the relative directory
-of an "extra_dir" is the same as the dir/type itself.
-
-=cut
-
-sub install_base_relative {
-    my ($self, $type) = @_;
-    my $extra_dirs = $self->_get_extra_dirs_attributes();
-    my ($reldir);
-    if ($extra_dirs->{$type}) {
-        $reldir = $type;
-    }
-    elsif ($type eq "html") {
-        $reldir = "htdocs/docs";
-    }
-    if (!$reldir) {
-        $reldir = $self->SUPER::install_base_relative($type);
-    }
-    return($reldir);
-}
-
 =head2 packlist()
 
 This creates the name of the "packlist" file that needs to be
@@ -568,89 +572,10 @@ sub packlist {
     my ($self) = @_;
     # Write the packlist into the same place as ExtUtils::MakeMaker.
     my $archdir = $self->install_destination('arch');
-    my @ext = split /::/, $self->module_name;
-    @ext = ($self->dist_name) if ($#ext == -1);
+    my @ext = $self->module_name ? split /::/, $self->module_name :
+                                   $self->dist_name;
     my $packlist = File::Spec->catfile($archdir, 'auto', @ext, '.packlist');
     return($packlist);
-}
-
-=head2 perllocal_pod()
-
-This creates the name of the "perllocal.pod" file that needs to be
-written with the version information of the distribution being installed.
-
-=cut
-
-sub perllocal_pod {
-    my ($self) = @_;
-    # perllocal.pod in the same place as ExtUtils::MakeMaker and ExtUtils::Command::MM.
-    my $archdir = $self->install_destination('arch');
-    my $pod = File::Spec->catfile($archdir, 'perllocal.pod');
-    return($pod);
-}
-
-=head2 fix_shebang_line()
-
-This method is only overridden in order to return the level of
-fixes performed.
-
- 0 = no #! line
- 1 = found #! line, but not a perl script
- 2 = found #! line, fixed to current perl interpreter
-
-=cut
-
-sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
-  my ($self, @files) = @_;
-  my $c = $self->{config};
-
-  my ($does_shbang) = $c->{sharpbang} =~ /^\s*\#\!/;
-  my $fixes = 0;
-  for my $file (@files) {
-    my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
-    local $/ = "\n";
-    chomp(my $line = <$FIXIN>);
-    next unless $line =~ s/^\s*\#!\s*//;     # Not a shbang file.
-    $fixes++;
-
-    my ($cmd, $arg) = (split(' ', $line, 2), '');
-    next unless $cmd =~ /perl/i;
-    $fixes++;
-    my $interpreter = $self->{properties}{perl};
-
-    print STDOUT "Changing sharpbang in $file to $interpreter" if $self->{verbose};
-    my $shb = '';
-    $shb .= "$c->{sharpbang}$interpreter $arg\n" if $does_shbang;
-
-    # I'm not smart enough to know the ramifications of changing the
-    # embedded newlines here to \n, so I leave 'em in.
-    $shb .= qq{
-eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
-    if 0; # not running under some shell
-} unless $self->os_type eq 'Windows'; # this won't work on win32, so don't
-
-    my $FIXOUT = IO::File->new(">$file.new")
-      or die "Can't create new $file: $!\n";
-
-    # Print out the new #! line (or equivalent).
-    local $\;
-    undef $/; # Was localized above
-    print $FIXOUT $shb, <$FIXIN>;
-    close $FIXIN;
-    close $FIXOUT;
-
-    rename($file, "$file.bak")
-      or die "Can't rename $file to $file.bak: $!";
-
-    rename("$file.new", $file)
-      or die "Can't rename $file.new to $file: $!";
-
-    unlink "$file.bak"
-      or warn "Couldn't clean up $file.bak, leaving it there";
-
-    $self->do_system($c->{eunicefix}, $file) if $c->{eunicefix} ne ':';
-  }
-  return($fixes);
 }
 
 =head2 install_map()
