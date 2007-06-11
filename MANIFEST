@@ -13,6 +13,7 @@ t/03_destdir.t
 t/04_extra_dirs.t
 t/05_packlist.t
 t/06_mirror.t
+t/07_unpack.t
 t/Bar/Build.PL
 t/Bar/lib/MyBar.pm
 t/Foo/Build.PL
@@ -23,6 +24,7 @@ t/Foo/htdocs/.htaccess
 t/Foo/htdocs/index.html
 t/Foo/htdocs/robots.txt
 t/Foo/lib/MyFoo.pm
+t/data/Foo.tar.gz
 t/lib/TestAppBuild.pm
 t/zy_pod_coverage.t
 t/zz_pod.t

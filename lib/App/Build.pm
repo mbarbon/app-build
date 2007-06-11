@@ -7,6 +7,7 @@ use Module::Build;
 use Cwd ();
 use File::Spec;
 use File::Basename qw();
+use File::Path qw();
 
 our $VERSION = "0.66";
 our @ISA = ("Module::Build");
@@ -716,46 +717,30 @@ TODO: Should be rewritten to use cross-platform, pure-perl.
 
 sub unpack {
     my ($class, $archive_file, $directory, $subdir) = @_;
+    require Archive::Extract;
     my $verbose = $App::options{verbose};
     $directory ||= "$App::options{install_prefix}/src";
     mkdir($directory) if (! -d $directory);
     die "Directory $directory does not exist and can't be created" if (! -d $directory);
 
-    my $start_dir = Cwd::getcwd();
     if (! File::Spec->file_name_is_absolute($archive_file)) {
-        $archive_file = File::Spec->catfile($start_dir, $archive_file);
+        $archive_file = File::Spec->catfile(Cwd::getcwd(), $archive_file);
     }
+    $subdir = File::Spec->catdir($directory, $subdir);
 
-    chdir($directory);
     if ($subdir && -d $subdir) {
         print "Removing preexisting directory $subdir ...\n" if ($verbose);
-        system("rm -rf $subdir");
+        File::Path::rmtree($subdir);
         print "Removing done.\n" if ($verbose);
     }
     print "Unpacking $archive_file ...\n" if ($verbose);
 
-    # my $archive = Archive::Any->new($archive_file);
-    # $archive->extract;
-    # my @files = $archive->files;
-    # my $type = $archive->type;
-    # $archive->is_impolite;
-    # $archive->is_naughty;
-
-    if ($archive_file =~ /\.zip$/) {
-        system("unzip $archive_file");
-    }
-    elsif ($archive_file =~ /\.tar\.gz$/ || $archive_file =~ /\.tgz$/) {
-        system("tar xvzf $archive_file");
-    }
-    else {
-        die "Unknown archive type: $archive_file\n";
-    }
+    my $ae = Archive::Extract->new(archive => $archive_file);
+    my $ok = $ae->extract(to => $directory) or die $ae->error;
 
     print "Unpacking done.\n" if ($verbose);
 
     die "Subdirectory $subdir not created" if (! -d $subdir);
-
-    chdir($start_dir);
 }
 
 =head1 ACKNOWLEDGEMENTS
