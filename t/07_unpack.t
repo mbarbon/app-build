@@ -5,7 +5,6 @@ use lib qw(t/lib);
 use Test::More tests => 6;
 use TestAppBuild;
 use App::Build;
-use ExtUtils::Command qw();
 
 clean_install();
 
@@ -24,10 +23,7 @@ SKIP: {
     is( -s 't/test_install/mumbo/Foo/cgi-bin/foo/foo.conf', 20 );
     ok( !-e 't/test_install/mumbo/Foo/dummy' );
 
-    {
-        local @ARGV = 't/test_install/mumbo/Foo/dummy';
-        ExtUtils::Command::touch();
-    }
+    touch_file( 't/test_install/mumbo/Foo/dummy' );
 
     $build1->unpack( 't/data/Foo.tar.gz', 't/test_install/mumbo', 'Foo' );
 

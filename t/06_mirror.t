@@ -5,7 +5,6 @@ use lib qw(t/lib);
 use Test::More tests => 2;
 use TestAppBuild;
 use App::Build;
-use ExtUtils::Command qw();
 
 clean_install();
 
@@ -13,10 +12,7 @@ eval { require File::Fetch };
 SKIP: {
     skip 'No File::Fetch, skipping mirror() tests', 2 if $@;
 
-    {
-        local @ARGV = 't/test_install/foo.2';
-        ExtUtils::Command::touch();
-    }
+    touch_file( 't/test_install/foo.2' );
 
     my $build1 = App::Build->new
       ( module_name  => 'Foo::Boo',
