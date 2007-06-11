@@ -11,6 +11,7 @@ t/01_load.t
 t/02_simple.t
 t/03_destdir.t
 t/04_extra_dirs.t
+t/05_packlist.t
 t/Bar/Build.PL
 t/Bar/lib/MyBar.pm
 t/Foo/Build.PL

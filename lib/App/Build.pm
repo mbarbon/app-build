@@ -196,22 +196,10 @@ distributions.
 
 sub new {
     my ($class, %args) = @_;
-    #print "new($class, {", join(",",%args), "})\n";
-
     my $obj = $class->SUPER::new(%args);
-
-    my $dist_name = $args{dist_name};
-    if (!$dist_name) {
-        die "must provide a dist_name" if ($dist_name eq "App-Build");
-    }
 
     $obj->_enhance_install_paths() if $obj->_prefix;
     $obj->_get_supporting_software();
-    # $obj->add_property( skip_install, [] );
-
-    #print "new() = $obj\n";
-    #print "obj = {", join(",", %$obj), "}\n";
-    #print "obj{properties} = {", join(",", %{$obj->{properties}}), "}\n";
 
     return($obj);
 }
