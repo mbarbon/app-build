@@ -261,7 +261,6 @@ sub _get_supporting_software {
         }
         ($subdir) || die "Subdir [$tag.subdir] does not exist";
 
-        my $prefix = $App::options{install_prefix} || $App::options{prefix};
         my $archive_dir = $App::options{archive_dir} || "archive";
         mkdir($archive_dir) if (! -d $archive_dir);
 
@@ -482,7 +481,6 @@ sub process_app_files {
 
     my @extra_dirs = $self->_get_extra_dirs();
     my $extra_dirs = $self->_get_extra_dirs_attributes();
-    # print "process_app_files(): extra_dirs=[@extra_dirs]\n";
 
     my $blib = $self->blib;
     my ($contains_executables, $result, $target_file);
@@ -680,7 +678,7 @@ sub configure {
 
 =head2 mirror()
 
-    * Signature: App::Build->mirror($url, $file);
+    * Signature: $build->mirror($url, $file);
     * Param:  $url          string
     * Param:  $file         string
 
@@ -689,9 +687,9 @@ TODO: Should be rewritten to use cross-platform, pure-perl.
 =cut
 
 sub mirror {
-    my ($class, $url, $file) = @_;
+    my ($self, $url, $file) = @_;
     if (! -f $file) {
-        print "Mirroring $url to $file\n";
+        $self->log_info("Mirroring $url to $file\n");
         require File::Fetch;
         my $ff = File::Fetch->new(uri => $url);
         my $where = $ff->fetch(to => File::Basename::dirname($file));
@@ -700,13 +698,13 @@ sub mirror {
         }
     }
     else {
-        print "Mirrored file $file up to date\n";
+        $self->log_info("Mirrored file $file up to date\n");
     }
 }
 
 =head2 unpack()
 
-    * Signature: App::Build->unpack($archive_file, $directory, $subdir);
+    * Signature: $build->unpack($archive_file, $directory, $subdir);
     * Param:  $archive_file string
     * Param:  $directory    string
     * Param:  $subdir       string
@@ -716,9 +714,8 @@ TODO: Should be rewritten to use cross-platform, pure-perl.
 =cut
 
 sub unpack {
-    my ($class, $archive_file, $directory, $subdir) = @_;
+    my ($self, $archive_file, $directory, $subdir) = @_;
     require Archive::Extract;
-    my $verbose = $App::options{verbose};
     $directory ||= "$App::options{install_prefix}/src";
     mkdir($directory) if (! -d $directory);
     die "Directory $directory does not exist and can't be created" if (! -d $directory);
@@ -729,16 +726,13 @@ sub unpack {
     $subdir = File::Spec->catdir($directory, $subdir);
 
     if ($subdir && -d $subdir) {
-        print "Removing preexisting directory $subdir ...\n" if ($verbose);
+        $self->log_info("Removing preexisting directory $subdir ...\n");
         File::Path::rmtree($subdir);
-        print "Removing done.\n" if ($verbose);
     }
-    print "Unpacking $archive_file ...\n" if ($verbose);
+    $self->log_info("Unpacking $archive_file ...\n");
 
     my $ae = Archive::Extract->new(archive => $archive_file);
     my $ok = $ae->extract(to => $directory) or die $ae->error;
-
-    print "Unpacking done.\n" if ($verbose);
 
     die "Subdirectory $subdir not created" if (! -d $subdir);
 }
