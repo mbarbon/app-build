@@ -18,7 +18,8 @@ my $build = Module::Build->new (
         "Test::Differences" => 0.47,
     },
     create_makefile_pl    => 'passthrough',
-    add_to_cleanup        => [ 't/test_install' ],
+    add_to_cleanup        => [ 't/test_install', 't/*/Build', 't/*/_build',
+                               't/*/blib' ],
 );
 
 $build->create_build_script;
