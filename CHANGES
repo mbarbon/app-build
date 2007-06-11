@@ -2,6 +2,9 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.67
+ x Rewritten mirror() to use File::Fetch.
+
 Version 0.66
  x More comprehensive tests, remove unused code and some
    warnings.

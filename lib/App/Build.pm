@@ -6,6 +6,7 @@ use App::Options;
 use Module::Build;
 use Cwd ();
 use File::Spec;
+use File::Basename qw();
 
 our $VERSION = "0.66";
 our @ISA = ("Module::Build");
@@ -690,7 +691,12 @@ sub mirror {
     my ($class, $url, $file) = @_;
     if (! -f $file) {
         print "Mirroring $url to $file\n";
-        system("wget -O $file $url");
+        require File::Fetch;
+        my $ff = File::Fetch->new(uri => $url);
+        my $where = $ff->fetch(to => File::Basename::dirname($file));
+        if($where) {
+            rename($where, $file);
+        }
     }
     else {
         print "Mirrored file $file up to date\n";
