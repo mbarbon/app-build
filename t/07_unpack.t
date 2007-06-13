@@ -8,8 +8,8 @@ use App::Build;
 
 clean_install();
 
-eval { require Archive::Extract };
 SKIP: {
+    eval { require Archive::Extract };
     skip 'No Archive::Extract, skipping unpack() tests', 2 if $@;
 
     my $build1 = App::Build->new

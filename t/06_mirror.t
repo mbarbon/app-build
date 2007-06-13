@@ -8,8 +8,8 @@ use App::Build;
 
 clean_install();
 
-eval { require File::Fetch };
 SKIP: {
+    eval { require File::Fetch };
     skip 'No File::Fetch, skipping mirror() tests', 2 if $@;
 
     touch_file( 't/test_install/foo.2' );

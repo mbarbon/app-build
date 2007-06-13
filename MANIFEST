@@ -14,6 +14,7 @@ t/04_extra_dirs.t
 t/05_packlist.t
 t/06_mirror.t
 t/07_unpack.t
+t/08_supporting_sw.t
 t/Bar/Build.PL
 t/Bar/lib/MyBar.pm
 t/Foo/Build.PL

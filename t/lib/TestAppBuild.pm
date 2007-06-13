@@ -22,6 +22,8 @@ sub set_module_dir {
 sub clean_install {
     File::Path::rmtree( 't/test_install' );
     File::Path::rmtree( 't/Foo/blib' );
+    File::Path::rmtree( 'archive' );
+    File::Path::rmtree( 'unpack' );
     File::Path::mkpath( 't/test_install' );
 
     open my $fh, '>', 't/test_install/is_x';
