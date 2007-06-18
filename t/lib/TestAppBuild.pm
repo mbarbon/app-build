@@ -8,6 +8,7 @@ use Fatal qw(chdir open);
 use Test::Differences;
 use File::Find;
 use ExtUtils::Command qw();
+use File::Spec;
 
 our @EXPORT = qw(run_build_pl run_build clean_install check_tree
                  set_module_dir touch_file);
