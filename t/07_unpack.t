@@ -10,7 +10,7 @@ clean_install();
 
 SKIP: {
     eval { require Archive::Extract };
-    skip 'No Archive::Extract, skipping unpack() tests', 2 if $@;
+    skip 'No Archive::Extract, skipping unpack() tests', 6 if $@;
 
     my $build1 = App::Build->new
       ( module_name  => 'Foo::Boo',
