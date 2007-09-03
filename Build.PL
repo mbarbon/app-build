@@ -11,7 +11,7 @@ my $build = Module::Build->new (
     requires => {
         "App::Options"    => 0,  # configuration
         "File::Spec"      => 0,  # platform-neutral directory manipulation
-        "Module::Build"   => 0,  # needed for installing the software (dup'ed here because not sure if build_requires works)
+        "Module::Build"   => 0.28,
     },
     build_requires => {
         "Module::Build"     => 0.28,
