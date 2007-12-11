@@ -13,4 +13,5 @@ run_build( 'install' );
 
 check_tree( 't/test_install/remapped',
             { 'lib/perl/MyBar.pm' => {},
+              'bin/program'       => { executable => 1 },
               } );

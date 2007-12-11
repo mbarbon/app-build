@@ -16,6 +16,7 @@ t/06_mirror.t
 t/07_unpack.t
 t/08_supporting_sw.t
 t/Bar/Build.PL
+t/Bar/bin/program
 t/Bar/lib/MyBar.pm
 t/Foo/Build.PL
 t/Foo/cgi-bin/CVS/Entries
