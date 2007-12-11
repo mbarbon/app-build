@@ -7,6 +7,11 @@ Version 0.69
    install_base return value when used as an accessor.
  x Undo the @ARGV stripping done by App::Options to allow Module::Build
    option processing to work as expected.
+ x Allow overriding paths specified by extra_dirs->dest_dir using
+   the standard --install_path option.
+ x Make the paths specified by install_path relative to install prefix
+   when they are relative (Module::Build behaviour is to make them
+   relative to current directory). 
 
 Version 0.68
  x Some test fixes for Perl 5.6.2 and when Archive::Extract/File::Fetch

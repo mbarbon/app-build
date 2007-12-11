@@ -397,7 +397,8 @@ are hashrefs of attributes. i.e.
        },
    },
 
-So far, only the "dest_dir" attribute is defined.
+So far, only the "dest_dir" attribute is defined.  The "dest_dir" attribute
+can be overridden using the "--install_path" parameter.
 
 =cut
 
@@ -450,6 +451,8 @@ sub _get_extra_dirs_attributes {
              $extra_dirs = { map { $_ => { dest_dir => $_ } } @extra_dirs };
         }
         foreach my $dir (@extra_dirs) {
+            $extra_dirs->{$dir}{dest_dir} = $self->install_path($dir)
+              if $self->install_path($dir);
             $extra_dirs->{$dir}{dest_dir} = $dir if (!$extra_dirs->{$dir}{dest_dir});
         }
     }
@@ -573,6 +576,12 @@ sub install_map {
     next unless -e $localdir;
 
     if (my $dest = $self->install_destination($type)) {
+      # thins alters the behavious of Module::Build, and
+      # looks into the implementation
+      if (   $self->install_path($type)
+          && !File::Spec->file_name_is_absolute($dest)) {
+        $dest = File::Spec->catdir( $self->_prefix, $dest );
+      }
       $map{$localdir} = $dest;
     } else {
       # Platforms like Win32, MacOS, etc. may not build man pages
@@ -583,9 +592,11 @@ sub install_map {
 
   my $extra_dirs_attrs = $self->_get_extra_dirs_attributes();
   foreach my $dir ( $self->_get_extra_dirs() ) {
-    $map{File::Spec->catdir( $blib, $dir )} =
-         File::Spec->catdir( $self->_prefix,
-                             $extra_dirs_attrs->{$dir}{dest_dir} );
+    my $dest = $extra_dirs_attrs->{$dir}{dest_dir};
+    if (!File::Spec->file_name_is_absolute($dest)) {
+      $dest = File::Spec->catdir( $self->_prefix, $dest );
+    }
+    $map{File::Spec->catdir( $blib, $dir )} = $dest;
   }
 
   if ($self->create_packlist) {
