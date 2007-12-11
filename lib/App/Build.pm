@@ -3,6 +3,12 @@ package App::Build;
 use strict;
 
 use App::Options;
+
+# undo @ARGV manipulation done by App::Build, to allow Module::Build to work
+BEGIN {
+    @ARGV = @App::Options::ARGV;
+}
+
 use Module::Build;
 use Cwd ();
 use File::Spec;
@@ -126,9 +132,9 @@ installations.
 
 =head1 App::Build CONFIGURABILITY
 
-Since App::Build uses App::Options, App::Options strips off all
-of the --var=value options out of @ARGV and makes them available
-via the global %App::options hash.
+Since App::Build uses App::Options, App::Options makes all the
+of the --var=value options available via the global %App::options hash.
+App::Build however does not remove the --var=value options from @ARGV.
 
 This will be put to good use sometime in the future.
 
@@ -151,28 +157,9 @@ essentially the same thing.
 
 delete $ENV{PREFIX};   # Module::Build protests if this var is set
 
-shift(@ARGV) if ($#ARGV > -1 && $ARGV[0] eq "Build");
-
 # Enable the continued use of the PREFIX=$PREFIX option
 # (from Makefile.PL and ExtUtils::MakeMaker) by making it
 # an alias for the "install_base" option of Module::Build.
-
-# Also, install scripts into $PREFIX/bin, not $PREFIX/scripts.
-
-my (@extra_args);
-foreach my $arg (@ARGV) {
-    if ($arg =~ s!^PREFIX=(.*)!install_base=$1!i) {
-        @extra_args = (
-            install_path => {bin => File::Spec->catdir($1,"bin")},
-        );
-    }
-    elsif ($arg =~ m!^install_base=(.*)!) {
-        # Install scripts into $PREFIX/bin, not $PREFIX/scripts
-        @extra_args = (
-            install_path => {bin => File::Spec->catdir($1,"bin")},
-        );
-    }
-}
 
 ######################################################################
 # BUILD: enhancements to "perl Build.PL"

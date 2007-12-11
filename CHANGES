@@ -5,6 +5,8 @@
 Version 0.69
  x Fix the handling of standard build types (for example libdoc) by fixing
    install_base return value when used as an accessor.
+ x Undo the @ARGV stripping done by App::Options to allow Module::Build
+   option processing to work as expected.
 
 Version 0.68
  x Some test fixes for Perl 5.6.2 and when Archive::Extract/File::Fetch
