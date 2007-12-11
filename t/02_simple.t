@@ -18,4 +18,6 @@ check_tree( 't/test_install/simple',
               'htdocs/robots.txt'    => {},
               'htdocs/.htaccess'     => {},
               'lib/MyFoo.pm'         => {},
+              'lib/MyPod.pm'         => {},
+              'man/man3/MyPod.3pm'   => {},
               } );

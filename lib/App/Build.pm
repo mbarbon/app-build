@@ -228,8 +228,10 @@ Overridden to transparently call C<_enhance_install_paths()>.
 sub install_base {
     my ($self, @args) = @_;
 
-    $self->SUPER::install_base(@args);
+    my $ret = $self->SUPER::install_base(@args);
     $self->_enhance_install_paths() if $self->_prefix;
+
+    return $ret;
 }
 
 =head2 _get_supporting_software()

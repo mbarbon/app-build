@@ -10,7 +10,9 @@ my $build = App::Build->new (
     build_requires => {
         "App::Build"     => 0,
     },
-    extra_dirs => { "lib", => { dest_dir => "lib/perl" } },
+    extra_dirs => { "lib",   => { dest_dir => "lib/perl" },
+                    "libdoc" => { dest_dir => "man" },
+                    },
     install_base => '../test_install/remapped',
     create_packlist => 0,
 );

@@ -18,6 +18,7 @@ t/08_supporting_sw.t
 t/Bar/Build.PL
 t/Bar/bin/program
 t/Bar/lib/MyBar.pm
+t/Bar/lib/MyPod.pm
 t/Foo/Build.PL
 t/Foo/cgi-bin/CVS/Entries
 t/Foo/cgi-bin/foo/foo.cgi
@@ -26,6 +27,7 @@ t/Foo/htdocs/.htaccess
 t/Foo/htdocs/index.html
 t/Foo/htdocs/robots.txt
 t/Foo/lib/MyFoo.pm
+t/Foo/lib/MyPod.pm
 t/data/Foo.tar.gz
 t/lib/TestAppBuild.pm
 t/zy_pod_coverage.t
