@@ -2,12 +2,10 @@ package App::Build;
 
 use strict;
 
+# undo @ARGV manipulation done by App::Options, to allow Module::Build to work
+my @orig_ARGV; BEGIN { @orig_ARGV = @ARGV; }
 use App::Options;
-
-# undo @ARGV manipulation done by App::Build, to allow Module::Build to work
-BEGIN {
-    @ARGV = @App::Options::ARGV;
-}
+@ARGV = @orig_ARGV;
 
 use Module::Build;
 use Cwd ();
@@ -15,7 +13,7 @@ use File::Spec;
 use File::Basename qw();
 use File::Path qw();
 
-our $VERSION = "0.69";
+our $VERSION = "0.70";
 our @ISA = ("Module::Build");
 
 =head1 NAME

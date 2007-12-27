@@ -2,6 +2,10 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.70
+ x Undo @ARGV stripping done by App::Options without relying on App::Options
+   internals.
+
 Version 0.69
  x Fix the handling of standard build types (for example libdoc) by fixing
    install_base return value when used as an accessor.
