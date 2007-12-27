@@ -63,7 +63,8 @@ sub check_tree {
     my $found = {};
     my $wanted = sub {
         return unless -f $_;
-        $found->{$File::Find::name} =
+        my $canon_name = File::Spec->canonpath( $File::Find::name );
+        $found->{$canon_name} =
           { executable => -x $_ ? 1 : 0 };
     };
     find( $wanted, $directory );

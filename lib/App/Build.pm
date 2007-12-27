@@ -13,7 +13,7 @@ use File::Spec;
 use File::Basename qw();
 use File::Path qw();
 
-our $VERSION = "0.70";
+our $VERSION = "0.71";
 our @ISA = ("Module::Build");
 
 =head1 NAME

@@ -2,6 +2,9 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.71
+ x Fix tests to work under Windows and various Unix configurations.
+
 Version 0.70
  x Undo @ARGV stripping done by App::Options without relying on App::Options
    internals.
