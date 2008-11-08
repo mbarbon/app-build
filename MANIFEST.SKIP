@@ -1,6 +1,8 @@
 # Avoid version control files.
 \B\.svn\b
 \b_darcs\b
+^\.gitignore$
+^\.git\b
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
