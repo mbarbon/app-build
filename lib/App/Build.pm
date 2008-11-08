@@ -739,7 +739,11 @@ sub unpack {
 
  * Author:  Stephen Adkins <stephen.adkins@officevision.com>
  * Maintainer: Mattia Barbon <mbarbon@cpan.org>
- * License: This is free software. It is licensed under the same terms as Perl itself.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =head1 SOURCES
 
