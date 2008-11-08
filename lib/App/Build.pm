@@ -741,6 +741,11 @@ sub unpack {
  * Maintainer: Mattia Barbon <mbarbon@cpan.org>
  * License: This is free software. It is licensed under the same terms as Perl itself.
 
+=head1 SOURCES
+
+The latest sources can be found on GitHub at
+L<http://github.com/mbarbon/app-build/tree>
+
 =head1 SEE ALSO
 
 =cut
