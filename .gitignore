@@ -1,0 +1,10 @@
+*~
+Build
+_build
+blib
+cover_db
+TAGS
+META.yml
+Makefile.PL
+Makefile
+t/test_install
