@@ -2,6 +2,9 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.72
+ x Try to avoid test failures when there is no support for manpages.
+
 Version 0.71
  x Fix tests to work under Windows and various Unix configurations.
 
