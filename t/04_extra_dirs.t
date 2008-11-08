@@ -4,7 +4,6 @@ use strict;
 use lib qw(t/lib);
 use Test::More tests => 1;
 use TestAppBuild;
-use Config;
 
 clean_install();
 set_module_dir( 't/Bar' );
@@ -19,8 +18,6 @@ check_tree( 't/test_install/remapped',
                   ( 'bin/program.bat' => { executable => 1 } ) :
                   ( ),
               'lib/perl/MyPod.pm' => {},
-              "man/MyPod.$Config{man3ext}" => {},
-              ( $Config{installhtmldir} ) ?
-                  ( "html/site/lib/MyPod.html" => {} ) :
-                  ( ),
+              if_has_man( "man/MyPod.$Config{man3ext}" => {} ),
+              if_has_html( "html/site/lib/MyPod.html" => {} ),
               } );

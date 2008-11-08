@@ -9,12 +9,20 @@ use Test::Differences;
 use File::Find;
 use ExtUtils::Command qw();
 use File::Spec;
+use Module::Build::ConfigData;
+use Config;
 
 our @EXPORT = qw(run_build_pl run_build clean_install check_tree
-                 set_module_dir touch_file);
+                 set_module_dir touch_file if_has_html if_has_man %Config);
 
 my $module_dir = 'Call set_module_dir()';
 my $support_executable_bit = 0;
+my $support_html =    Module::Build::ConfigData->feature( 'HTML_support' )
+                   && $Config{installhtmldir};
+my $support_man = Module::Build::ConfigData->feature( 'manpage_support' );
+
+sub if_has_html { $support_html ? @_ : () }
+sub if_has_man  { $support_man  ? @_ : () }
 
 sub set_module_dir {
     $module_dir = $_[0];

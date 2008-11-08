@@ -4,7 +4,6 @@ use strict;
 use lib qw(t/lib);
 use Test::More tests => 1;
 use TestAppBuild;
-use Config;
 
 clean_install();
 set_module_dir( 't/Foo' );
@@ -23,8 +22,6 @@ check_tree( 't/test_install/simple',
               'htdocs/.htaccess'     => {},
               'lib/MyFoo.pm'         => {},
               'lib/MyPod.pm'         => {},
-              "man/man3/MyPod.$Config{man3ext}" => {},
-              ( $Config{installhtmldir} ) ?
-                  ( "html/site/lib/MyPod.html" => {} ) :
-                  ( ),
+              if_has_man( "man/man3/MyPod.$Config{man3ext}" => {} ),
+              if_has_html( "html/site/lib/MyPod.html" => {} ),
             } );
