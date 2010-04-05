@@ -2,7 +2,7 @@
 use App::Build;
 
 my $build = App::Build->new (
-    dist_name         => "Bar",
+    module_name       => "Bar",
     dist_version      => "0.99",
     dist_author       => "mattia.barbon\@libero.it",
     dist_abstract     => "A test Build.PL",
