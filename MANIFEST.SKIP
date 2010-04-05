@@ -8,6 +8,8 @@
 \bBuild$
 \b_build/
 \bblib/
+\bMYMETA.yml$
+^App-Build-.*\.tar\.gz$
 
 # Avoid temp and backup files.
 ~$

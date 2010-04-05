@@ -8,3 +8,5 @@ META.yml
 Makefile.PL
 Makefile
 t/test_install
+MYMETA.yml
+App-Build-*.tar.gz
