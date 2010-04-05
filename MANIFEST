@@ -17,10 +17,12 @@ t/07_unpack.t
 t/08_supporting_sw.t
 t/09_commandline_remap.t
 t/Bar/Build.PL
+t/Bar/MANIFEST
 t/Bar/bin/program
 t/Bar/lib/MyBar.pm
 t/Bar/lib/MyPod.pm
 t/Foo/Build.PL
+t/Foo/MANIFEST
 t/Foo/cgi-bin/CVS/Entries
 t/Foo/cgi-bin/foo/foo.cgi
 t/Foo/cgi-bin/foo/foo.conf
