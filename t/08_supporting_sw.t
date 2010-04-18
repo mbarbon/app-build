@@ -15,6 +15,7 @@ SKIP: {
     skip 'No Archive::Extract, skipping _get_supporting_software() tests', 3 if $@;
 
     my $cwd = Cwd::cwd();
+    $cwd = "/$cwd" if $^O =~ /^MSWin/;
     $App::options{"foo-boo.url"} = "file://$cwd/t/data/Foo.tar.gz";
     my $build1 = App::Build->new
       ( module_name  => 'Foo::Boo',

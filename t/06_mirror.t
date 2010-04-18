@@ -20,6 +20,7 @@ SKIP: {
         quiet        => 1,
         );
     my $cwd = Cwd::cwd();
+    $cwd = "/$cwd" if $^O =~ /^MSWin/;
     $build1->mirror( "file://$cwd/t/06_mirror.t", 't/test_install/foo.1' );
     $build1->mirror( "file://$cwd/t/06_mirror.t", 't/test_install/foo.2' );
 
