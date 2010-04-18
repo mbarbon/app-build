@@ -2,6 +2,9 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.73
+ x Some test fixes.
+
 Version 0.72
  x Try to avoid test failures when there is no support for manpages.
 
