@@ -55,6 +55,7 @@ sub _run {
 
 sub run_build_pl {
     my( @args ) = @_;
+    local $ENV{PERL_MB_OPT};
     chdir $module_dir;
     _run( 'Build.PL', @args );
     chdir '../..';
@@ -62,6 +63,7 @@ sub run_build_pl {
 
 sub run_build {
     my( @args ) = @_;
+    local $ENV{PERL_MB_OPT};
     chdir $module_dir;
     _run( 'Build', @args );
     chdir '../..';
