@@ -35,3 +35,4 @@ t/data/Foo.tar.gz
 t/lib/TestAppBuild.pm
 t/zy_pod_coverage.t
 t/zz_pod.t
+META.json

@@ -2,6 +2,9 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.74_01
+ x Blind test fix for cases when man3ext is set to "0".
+
 Version 0.74
  x More test fixes.
 
