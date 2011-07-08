@@ -18,9 +18,11 @@ our @EXPORT = qw(run_build_pl run_build clean_install check_tree
 my $module_dir = 'Call set_module_dir()';
 my $support_executable_bit = 0;
 my $support_html =    Module::Build::ConfigData->feature( 'HTML_support' )
-                   && defined $Config{installhtmldir};
+                   && defined $Config{installhtmldir}
+                   && length $Config{installhtmldir};
 my $support_man = Module::Build::ConfigData->feature( 'manpage_support' )
-                  && defined $Config{man3ext};
+                  && defined $Config{man3ext}
+                  && length $Config{man3ext};
 
 sub if_has_html { $support_html ? @_ : () }
 sub if_has_man  { $support_man  ? @_ : () }
