@@ -2,6 +2,9 @@
 # CHANGE LOG
 #############################################################################
 
+Version 0.74_03
+ x Blind test fix for cases when install{site}man3dir is not set.
+
 Version 0.74_02
  x Blind test fix for cases when man3ext is set to "0".
 

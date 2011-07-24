@@ -20,7 +20,11 @@ my $support_executable_bit = 0;
 my $support_html =    Module::Build::ConfigData->feature( 'HTML_support' )
                    && defined $Config{installhtmldir}
                    && length $Config{installhtmldir};
-my $support_man = Module::Build::ConfigData->feature( 'manpage_support' )
+my $support_man =    Module::Build::ConfigData->feature( 'manpage_support' )
+                  && (    (    defined $Config{installman3dir}
+                            && length $Config{installman3dir} )
+                       || (    defined $Config{installsiteman3dir}
+                            && length $Config{installsiteman3dir} ) )
                   && defined $Config{man3ext}
                   && length $Config{man3ext};
 
